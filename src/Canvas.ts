@@ -1,4 +1,3 @@
-// canvas
 class Canvas {
     private _canvas: HTMLCanvasElement;
     private _context: CanvasRenderingContext2D;

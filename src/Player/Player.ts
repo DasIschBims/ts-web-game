@@ -8,7 +8,7 @@ class Player {
             width: number,
             height: number,
             health: { current: number, max: number },
-            movement: { speed: number, friction: number, step: number }
+            movement: { speed: number }
         }
     ) {
         let keys: any = [];
@@ -28,23 +28,36 @@ class Player {
         });
 
         setInterval(() => {
-            // move player but if two keys are pressed move diagonally
-            if (keys['w'] && keys['a']) {
-                this.move('up-left');
+            if (keys['w'] && keys['s']) {
+                this.move("none");
+            } else if (keys['a'] && keys['d']) {
+                this.move("none");
+            } else if (keys['w'] && keys['a']) {
+                this.move("up-left");
+                this.setHealth({ current: this.getHealth().current - 1, max: this.getHealth().max });
             } else if (keys['w'] && keys['d']) {
-                this.move('up-right');
+                this.move("up-right");
+                this.setHealth({ current: this.getHealth().current - 1, max: this.getHealth().max });
             } else if (keys['s'] && keys['a']) {
-                this.move('down-left');
+                this.move("down-left");
+                this.setHealth({ current: this.getHealth().current - 1, max: this.getHealth().max });
             } else if (keys['s'] && keys['d']) {
-                this.move('down-right');
+                this.move("down-right");
+                this.setHealth({ current: this.getHealth().current - 1, max: this.getHealth().max });
             } else if (keys['w']) {
-                this.move('up');
-            } else if (keys['s']) {
-                this.move('down');
+                this.move("up");
+                this.setHealth({ current: this.getHealth().current - 1, max: this.getHealth().max });
             } else if (keys['a']) {
-                this.move('left');
+                this.move("left");
+                this.setHealth({ current: this.getHealth().current - 1, max: this.getHealth().max });
+            } else if (keys['s']) {
+                this.move("down");
+                this.setHealth({ current: this.getHealth().current - 1, max: this.getHealth().max });
             } else if (keys['d']) {
-                this.move('right');
+                this.move("right");
+                this.setHealth({ current: this.getHealth().current - 1, max: this.getHealth().max });
+            } else {
+                this.move("none");
             }
         }, 1000 / 60);
 
@@ -65,85 +78,65 @@ class Player {
         this.settings.canvas.context.drawImage(sprite, this.settings.position.x, this.settings.position.y, this.settings.width, this.settings.height);
     }
 
-    drawHealthBar(): void {
-        this.settings.canvas.context.fillStyle = '#f00';
-        this.settings.canvas.context.fillRect(this.settings.position.x, this.settings.position.y - 20, this.settings.width, 10);
-        this.settings.canvas.context.fillStyle = '#0f0';
-        this.settings.canvas.context.fillRect(this.settings.position.x, this.settings.position.y - 20, this.settings.width * (this.settings.health.current / this.settings.health.max), 10);
-    }
-
     getPosition(): { x: number, y: number } {
         return this.settings.position;
     }
 
-    move(direction: string, speed: number = this.settings.movement.speed, step: number = this.settings.movement.step, friction: number = this.settings.movement.friction): void {
+    move(direction: string, speed: number = this.settings.movement.speed): void {
         switch (direction) {
             case 'up':
-                this.settings.position.y -= speed;
-
-                if (speed > 0) {
-                    this.move(direction, speed - step * friction, step, friction);
+                if (this.settings.position.y - speed > 0) {
+                    this.settings.position.y -= speed;
                 }
                 break;
             case 'down':
-                this.settings.position.y += speed;
-
-                if (speed > 0) {
-                    this.move(direction, speed - step * friction, step, friction);
+                if (this.settings.position.y + speed < this.settings.canvas.canvas.height - this.settings.height) {
+                    this.settings.position.y += speed;
                 }
                 break;
             case 'left':
-                this.settings.position.x -= speed;
-
-                if (speed > 0) {
-                    this.move(direction, speed - step * friction, step, friction);
+                if (this.settings.position.x - speed > 0) {
+                    this.settings.position.x -= speed;
                 }
                 break;
             case 'right':
-                this.settings.position.x += speed;
-
-                if (speed > 0) {
-                    this.move(direction, speed - step * friction, step, friction);
+                if (this.settings.position.x + speed < this.settings.canvas.canvas.width - this.settings.width) {
+                    this.settings.position.x += speed;
                 }
                 break;
             case 'up-left':
-                this.settings.position.y -= speed;
-                this.settings.position.x -= speed;
-
-                if (speed > 0) {
-                    this.move(direction, speed - step * friction, step, friction);
+                if (this.settings.position.y - speed > 0 && this.settings.position.x - speed > 0) {
+                    this.settings.position.y -= speed / 1.414;
+                    this.settings.position.x -= speed / 1.414;
                 }
                 break;
             case 'up-right':
-                this.settings.position.y -= speed;
-                this.settings.position.x += speed;
-
-                if (speed > 0) {
-                    this.move(direction, speed - step * friction, step, friction);
+                if (this.settings.position.y - speed > 0 && this.settings.position.x + speed < this.settings.canvas.canvas.width - this.settings.width) {
+                    this.settings.position.y -= speed / 1.414;
+                    this.settings.position.x += speed / 1.414;
                 }
                 break;
             case 'down-left':
-                this.settings.position.y += speed;
-                this.settings.position.x -= speed;
-
-                if (speed > 0) {
-                    this.move(direction, speed - step * friction, step, friction);
+                if (this.settings.position.y + speed < this.settings.canvas.canvas.height - this.settings.height && this.settings.position.x - speed > 0) {
+                    this.settings.position.y += speed / 1.414;
+                    this.settings.position.x -= speed / 1.414;
                 }
                 break;
             case 'down-right':
-                this.settings.position.y += speed;
-                this.settings.position.x += speed;
-
-                if (speed > 0) {
-                    this.move(direction, speed - step * friction, step, friction);
+                if (this.settings.position.y + speed < this.settings.canvas.canvas.height - this.settings.height && this.settings.position.x + speed < this.settings.canvas.canvas.width - this.settings.width) {
+                    this.settings.position.y += speed / 1.414;
+                    this.settings.position.x += speed / 1.414;
                 }
                 break;
+            case 'none':
+                break;
+            default:
+                console.log('Invalid direction');
         }
     }
 
     update(): void {
         this.draw();
-        this.drawHealthBar();
     }
 
     getHealth(): { current: number, max: number } {
@@ -160,7 +153,7 @@ class Player {
         width: number,
         height: number,
         health: { current: number, max: number },
-        movement: { speed: number, step: number }
+        movement: { speed: number }
     } {
         return this.settings;
     }
